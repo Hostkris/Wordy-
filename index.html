@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Wordy is a clean AI-assisted KDP book studio for generating, polishing, previewing, formatting, and exporting manuscripts." />
+  <title>Wordy KDP Studio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%2317211f'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-family='Georgia,serif' font-size='34' font-weight='700' fill='%23fffefa'%3EW%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#studio" aria-label="Wordy home">
+      <span class="brand-mark">W</span>
+      <span>
+        <strong>Wordy</strong>
+        <small>KDP Book Studio</small>
+      </span>
+    </a>
+    <nav class="desktop-nav" aria-label="Main navigation">
+      <a href="#studio">Studio</a>
+      <a href="#ai">AI Studio</a>
+      <a href="#format">Format</a>
+      <a href="#preview">Preview</a>
+      <a href="#export">Export</a>
+    </nav>
+    <div class="top-actions">
+      <span class="save-status" id="saveStatus" role="status" aria-live="polite">Ready</span>
+      <button class="ghost" id="saveNowBtn">Save</button>
+      <button class="ghost" id="printBtn">Print PDF</button>
+      <button class="primary" data-download-pdf>Download PDF</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="section studio-overview" id="studio">
+      <div class="overview-copy">
+        <p class="eyebrow">Publishing Workspace</p>
+        <h1>KDP books, built clean.</h1>
+        <p class="lede">Draft chapters, use AI to generate or polish human-feeling prose, calculate paperback specs, preview pages, and export a browser-generated PDF.</p>
+      </div>
+      <aside class="project-brief panel" aria-label="Current project summary">
+        <div class="book-cover">
+          <span class="cover-kicker">WORDY EDITION</span>
+          <h2 id="coverTitleLive">Untitled Book</h2>
+          <p id="coverSubtitleLive">A refined manuscript built for Amazon KDP.</p>
+          <small id="coverAuthorLive">by Author Name</small>
+        </div>
+        <div class="metric-grid">
+          <div><strong id="wordCountMetric">0</strong><span>Words</span></div>
+          <div><strong id="pageCountMetric">24</strong><span>Pages</span></div>
+          <div><strong id="chapterCountMetric">0</strong><span>Chapters</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section studio-layout">
+      <div class="section-heading">
+        <p class="eyebrow">Book Studio</p>
+        <h2>Build the manuscript.</h2>
+        <p>Choose a book type, shape the outline, then write chapter by chapter. Autosave keeps the project in this browser.</p>
+      </div>
+
+      <aside class="sidebar panel">
+        <h3>Book Setup</h3>
+        <label>Book title
+          <input id="bookTitle" type="text" placeholder="The Clean Publishing Playbook" />
+        </label>
+        <label>Subtitle
+          <input id="bookSubtitle" type="text" placeholder="A practical guide for independent authors" />
+        </label>
+        <label>Author / pen name
+          <input id="authorName" type="text" placeholder="Your Pen Name" />
+        </label>
+        <label>Book type
+          <select id="bookType">
+            <option value="nonfiction">Non-fiction / thought leadership</option>
+            <option value="memoir">Memoir / testimony</option>
+            <option value="story">Children's storybook</option>
+            <option value="journal">Journal / workbook</option>
+            <option value="devotional">Devotional / Bible study</option>
+          </select>
+        </label>
+        <label>Target reader
+          <input id="targetReader" type="text" placeholder="First-time authors, coaches, families..." />
+        </label>
+        <div class="button-stack">
+          <button class="primary" id="generateBlueprintBtn">Create Blueprint</button>
+          <button class="ghost" id="addChapterBtn">Add Chapter</button>
+          <button class="danger" id="resetBtn">Reset Book</button>
+        </div>
+      </aside>
+
+      <div class="editor-shell panel">
+        <div class="editor-toolbar">
+          <div>
+            <p class="eyebrow">Chapter Editor</p>
+            <h3 id="activeChapterHeading">No chapter selected</h3>
+          </div>
+          <div class="editor-actions">
+            <button class="ghost small" id="moveUpBtn">Move Up</button>
+            <button class="ghost small" id="moveDownBtn">Move Down</button>
+            <button class="danger small" id="deleteChapterBtn">Delete</button>
+          </div>
+        </div>
+        <div class="chapter-tabs" id="chapterTabs" aria-label="Chapter list"></div>
+        <label>Chapter title
+          <input id="chapterTitle" type="text" placeholder="Chapter One: The Standard" />
+        </label>
+        <label>Chapter content
+          <textarea id="chapterContent" placeholder="Write the chapter here. The preview, word count, KDP checks, and PDF export update as you work."></textarea>
+        </label>
+        <div class="writing-tools">
+          <button class="ghost" data-insert="sectionBreak">Section Break</button>
+          <button class="ghost" data-insert="quoteBox">Pull Quote</button>
+          <button class="ghost" data-insert="exercise">Workbook Prompt</button>
+          <button class="ghost" data-insert="copyright">Copyright Page</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section ai-studio" id="ai">
+      <div class="section-heading full">
+        <p class="eyebrow">AI Studio</p>
+        <h2>Generate, rewrite, and humanize.</h2>
+        <p>Connect a compatible AI endpoint, then generate a book draft from guided inputs or polish an existing manuscript into a more natural, premium voice.</p>
+      </div>
+
+      <article class="panel ai-config">
+        <h3>AI Connection</h3>
+        <p class="soft">Use your own CORS-enabled AI endpoint or local AI server. Settings stay in this browser.</p>
+        <label>AI endpoint
+          <input id="aiEndpoint" type="url" placeholder="https://api.openai.com/v1/chat/completions" />
+        </label>
+        <label>Model
+          <input id="aiModel" type="text" placeholder="gpt-4o-mini, local-model, or your preferred model" />
+        </label>
+        <label>API key
+          <input id="aiApiKey" type="password" autocomplete="off" placeholder="Stored locally in this browser" />
+        </label>
+        <div class="two-col">
+          <label>Creativity
+            <input id="aiTemperature" type="number" min="0" max="1.2" step="0.1" value="0.7" />
+          </label>
+          <label>Output length
+            <select id="aiLength">
+              <option value="concise">Concise</option>
+              <option value="standard" selected>Standard</option>
+              <option value="expanded">Expanded</option>
+            </select>
+          </label>
+        </div>
+        <button class="ghost" id="saveAiSettingsBtn">Save AI Settings</button>
+        <div class="status-box ai-status" id="aiStatus">AI is not connected yet.</div>
+      </article>
+
+      <article class="panel ai-generate">
+        <h3>Write a Book With AI</h3>
+        <label>Book idea or premise
+          <textarea id="aiBookBrief" placeholder="Describe the book you want Wordy to write: topic, reader, promise, examples, beliefs, style, and anything it must avoid."></textarea>
+        </label>
+        <div class="two-col">
+          <label>Chapter count
+            <input id="aiChapterCount" type="number" min="3" max="30" value="8" />
+          </label>
+          <label>Words per chapter
+            <input id="aiWordsPerChapter" type="number" min="300" max="5000" step="100" value="1200" />
+          </label>
+        </div>
+        <label>Direction for the AI
+          <textarea id="aiBookDirection" placeholder="Example: Make it practical, emotionally grounded, masculine but not corny, with stories, exercises, and clear chapter takeaways."></textarea>
+        </label>
+        <div class="button-stack inline-buttons">
+          <button class="primary" id="aiGenerateBookBtn">Generate Book Draft</button>
+          <button class="ghost" id="copyBookPromptBtn">Copy Book Prompt</button>
+        </div>
+      </article>
+
+      <article class="panel ai-polish">
+        <h3>Polish Existing Text</h3>
+        <div class="two-col">
+          <label>Source
+            <select id="aiPolishSource">
+              <option value="chapter" selected>Current chapter</option>
+              <option value="selected">Selected chapter text</option>
+              <option value="pasted">Pasted manuscript</option>
+              <option value="fullBook">Full book draft</option>
+            </select>
+          </label>
+          <label>Rewrite style
+            <select id="aiPolishMode">
+              <option value="humanPremium" selected>More human + premium</option>
+              <option value="preserveVoice">Preserve voice, clean it up</option>
+              <option value="lineEdit">Line edit for clarity</option>
+              <option value="expand">Expand with depth</option>
+              <option value="simplify">Simplify and tighten</option>
+            </select>
+          </label>
+        </div>
+        <label>Pasted manuscript or notes
+          <textarea id="aiSourceText" placeholder="Paste a pre-made book, chapter, rough draft, or AI-generated text here if you want Wordy to rewrite it."></textarea>
+        </label>
+        <label>Polish instructions
+          <textarea id="aiPolishDirection" placeholder="Example: Make it sound like a real author wrote it. Add warmth, concrete examples, rhythm, and confidence. Remove robotic phrasing."></textarea>
+        </label>
+        <div class="button-stack inline-buttons">
+          <button class="primary" id="aiPolishBtn">Polish / Humanize Text</button>
+          <button class="ghost" id="copyPolishPromptBtn">Copy Polish Prompt</button>
+        </div>
+      </article>
+
+      <article class="panel ai-output-panel">
+        <p class="eyebrow">AI Output</p>
+        <h3>Review before applying.</h3>
+        <textarea id="aiOutput" placeholder="AI results or generated prompts will appear here."></textarea>
+        <div class="button-grid">
+          <button class="primary" id="applyBookDraftBtn">Apply Draft to Book</button>
+          <button class="ghost" id="replaceChapterBtn">Replace Current Chapter</button>
+          <button class="ghost" id="insertChapterBtn">Insert as New Chapter</button>
+          <button class="ghost" id="copyAiOutputBtn">Copy Output</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="section vault-grid">
+      <article class="panel">
+        <p class="eyebrow">Inspiration Vault</p>
+        <h2>Drop in notes, research, or chapter context.</h2>
+        <p class="soft">Files are read in the browser and saved only with this local project.</p>
+        <div class="dropzone" id="dropzone">
+          <strong>Drop .txt, .md, or .html files here</strong>
+          <span>or click to browse</span>
+          <input id="fileInput" type="file" accept=".txt,.md,.html,.htm,text/plain,text/markdown,text/html" multiple />
+        </div>
+        <textarea id="inspirationText" placeholder="Paste research notes, tone samples, chapter ideas, reader pain points, or KDP niche observations here..."></textarea>
+      </article>
+      <article class="panel">
+        <p class="eyebrow">Writing Prompts</p>
+        <h2>Premium writing assists.</h2>
+        <div class="prompt-grid" id="promptGrid"></div>
+      </article>
+    </section>
+
+    <section class="section format-grid" id="format">
+      <div class="section-heading full">
+        <p class="eyebrow">KDP Format Studio</p>
+        <h2>Check the print setup.</h2>
+        <p>Review trim size, bleed, margins, page count, spine text, cover wrap size, and image DPI before upload.</p>
+      </div>
+      <article class="panel settings-panel">
+        <h3>Interior Settings</h3>
+        <label>Trim preset
+          <select id="trimPreset">
+            <option value="5x8">5 x 8 in</option>
+            <option value="5.25x8">5.25 x 8 in</option>
+            <option value="5.5x8.5" selected>5.5 x 8.5 in</option>
+            <option value="6x9">6 x 9 in</option>
+            <option value="7x10">7 x 10 in</option>
+            <option value="8.5x11">8.5 x 11 in</option>
+            <option value="custom">Custom paperback size</option>
+          </select>
+        </label>
+        <div class="two-col">
+          <label>Width (in)
+            <input id="trimWidth" type="number" step="0.001" min="4" max="8.5" value="5.5" />
+          </label>
+          <label>Height (in)
+            <input id="trimHeight" type="number" step="0.001" min="6" max="11.69" value="8.5" />
+          </label>
+        </div>
+        <label>Interior bleed
+          <select id="bleedMode">
+            <option value="noBleed">No bleed - text-only or normal manuscript</option>
+            <option value="bleed">Bleed - images/backgrounds reach page edge</option>
+          </select>
+        </label>
+        <label>Paper / interior type
+          <select id="paperType">
+            <option value="whiteBw">Black & white - white paper</option>
+            <option value="creamBw">Black & white - cream paper</option>
+            <option value="groundwood">Groundwood</option>
+            <option value="color">Color paper</option>
+          </select>
+        </label>
+        <label>Manual page count override
+          <input id="manualPages" type="number" min="24" max="828" placeholder="Leave blank to estimate from words" />
+        </label>
+        <label>Body font size
+          <input id="fontSize" type="number" min="7" max="16" step="0.5" value="11" />
+        </label>
+        <label>Line height
+          <input id="lineHeight" type="number" min="1" max="2" step="0.05" value="1.22" />
+        </label>
+      </article>
+
+      <article class="panel spec-panel">
+        <h3>Your KDP Specs</h3>
+        <div class="spec-list" id="specList"></div>
+        <div class="status-box" id="statusBox"></div>
+      </article>
+
+      <article class="panel checklist-panel">
+        <h3>KDP Upload Checklist</h3>
+        <ul class="check-list" id="kdpChecklist"></ul>
+      </article>
+    </section>
+
+    <section class="section cover-grid">
+      <div class="section-heading full">
+        <p class="eyebrow">Cover Wrap Planner</p>
+        <h2>Front, spine, and back cover sizing.</h2>
+        <p>Calculate the continuous paperback cover canvas for Canva, Affinity, Photoshop, or another design tool.</p>
+      </div>
+      <article class="panel cover-controls">
+        <h3>Cover Copy</h3>
+        <label>Back-cover headline
+          <input id="backHeadline" type="text" placeholder="A clear promise for the reader." />
+        </label>
+        <label>Back-cover blurb
+          <textarea id="backBlurb" placeholder="Write the sales blurb here. Keep it tight, strong, and reader-focused."></textarea>
+        </label>
+        <label>Author bio
+          <textarea id="authorBio" placeholder="Short author bio for the back cover or final page."></textarea>
+        </label>
+      </article>
+      <article class="panel cover-preview-panel">
+        <div class="cover-wrap-preview">
+          <div class="back-cover-preview">
+            <span>Back Cover</span>
+            <strong id="backHeadlineLive">Back-cover headline</strong>
+            <p id="backBlurbLive">Your blurb will appear here.</p>
+            <div class="barcode-box">Barcode zone</div>
+          </div>
+          <div class="spine-preview"><span id="spineLive">WORDY</span></div>
+          <div class="front-cover-preview">
+            <span>Front Cover</span>
+            <strong id="frontTitleLive">Untitled Book</strong>
+            <p id="frontSubtitleLive">Subtitle</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="section preview-section" id="preview">
+      <div class="section-heading full">
+        <p class="eyebrow">Book Preview</p>
+        <h2>Preview the manuscript.</h2>
+        <p>Preview uses the current trim and margin choices. Use Download PDF for a direct file, or Print PDF when you want browser print controls.</p>
+      </div>
+      <article class="preview-frame panel">
+        <div class="preview-toolbar">
+          <span id="previewLabel">5.5 x 8.5 in - no bleed</span>
+          <button class="ghost" id="refreshPreviewBtn">Refresh Preview</button>
+        </div>
+        <div class="manuscript-preview" id="manuscriptPreview"></div>
+      </article>
+    </section>
+
+    <section class="section export-suite" id="export">
+      <article class="panel export-main">
+        <p class="eyebrow">Export Your Book</p>
+        <h2>Take your book with you.</h2>
+        <p>Your manuscript is ready for its next step. Choose a format for printing, editing, publishing, or digital reading.</p>
+        <div class="export-option-grid" aria-label="Export formats">
+          <button class="export-option primary" data-download-pdf>
+            <strong>Download PDF</strong>
+            <span>Print-ready manuscript</span>
+          </button>
+          <button class="export-option ghost" id="downloadDocxBtn">
+            <strong>Download DOCX</strong>
+            <span>Editable manuscript</span>
+          </button>
+          <button class="export-option ghost" id="downloadEpubBtn">
+            <strong>Download EPUB</strong>
+            <span>Digital book edition</span>
+          </button>
+        </div>
+      </article>
+
+      <aside class="panel export-backup">
+        <p class="eyebrow">Project Backup</p>
+        <h3>Keep a restorable copy.</h3>
+        <p class="soft">Save a Wordy backup with chapters, cover copy, format settings, and project notes.</p>
+        <div class="button-grid compact">
+          <button class="ghost" id="downloadJsonBtn">Save Backup</button>
+          <button class="ghost" id="importJsonBtn">Restore Backup</button>
+          <input id="jsonImportInput" type="file" accept="application/json,.json" hidden />
+        </div>
+      </aside>
+
+      <aside class="panel export-details">
+        <p class="eyebrow">Book Details</p>
+        <h3 id="exportReadyLabel">Ready for export.</h3>
+        <dl class="detail-list">
+          <div><dt>Title</dt><dd id="detailTitle">Your Book Title</dd></div>
+          <div><dt>Author</dt><dd id="detailAuthor">Author Name</dd></div>
+          <div><dt>Trim Size</dt><dd id="detailTrim">5.5 x 8.5 in</dd></div>
+          <div><dt>Pages</dt><dd id="detailPages">24</dd></div>
+          <div><dt>Interior</dt><dd id="detailInterior">Black & White</dd></div>
+          <div><dt>Bleed</dt><dd id="detailBleed">No Bleed</dd></div>
+        </dl>
+        <a class="ghost settings-link" href="#format">Edit Book Settings</a>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <strong>Wordy</strong>
+    <span>Static KDP book studio. Built for GitHub Pages.</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
